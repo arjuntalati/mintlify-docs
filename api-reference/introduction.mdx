@@ -1,33 +1,66 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: 'API Reference'
+description: 'Complete guide to Knowlify video generation APIs'
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+## Welcome to Knowlify API
 
-## Welcome
+Knowlify provides three powerful APIs for video generation, each optimized for different use cases:
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+<CardGroup cols={3}>
+  <Card title="Grant" icon="bolt" href="/api-reference/live-gen">
+    Fast generation for real-time apps
+  </Card>
+  <Card title="Prism" icon="film" href="/api-reference/pre-rendered">
+    High-quality videos with rich animations
+  </Card>
+  <Card title="Modify" icon="pencil" href="/api-reference/modify">
+    Edit existing videos efficiently
+  </Card>
+</CardGroup>
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+## Parameters
 
-## Authentication
+Each script accepts different parameters based on the action type. Grant and Prism scripts share similar parameters, while the modify API has its own specific parameters for video modification.
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+### Parameter Reference
 
+| Parameter | Grant | Prism | Modify API | Description |
+|-----------|-------|-------|------------|-------------|
+| `task`/`query` | <span className="text-green-600 font-semibold">Required</span> | <span className="text-green-600 font-semibold">Required</span> | <span className="text-green-600 font-semibold">Required</span> | The instruction or prompt for video generation/modification |
+| `action` | <span className="text-green-600 font-semibold">Required</span> | <span className="text-green-600 font-semibold">Required</span> | <span className="text-green-600 font-semibold">Required</span> | `"finetuned_live_gen"`, `"Pre-Rendered"`, or `"modify"` |
+| `api_key` | <span className="text-green-600 font-semibold">Required</span> | <span className="text-green-600 font-semibold">Required</span> | <span className="text-blue-600">Optional</span> | Your authentication API key for accessing the service |
+| `logo` | <span className="text-blue-600">Optional</span> | <span className="text-blue-600">Optional</span> | <span className="text-gray-500">Not Available</span> | Custom logo to display in the video |
+| `language` | <span className="text-blue-600">Optional</span> | <span className="text-blue-600">Optional</span> | <span className="text-gray-500">Not Available</span> | Language for the video narration |
+| `voice_name` | <span className="text-blue-600">Optional</span> | <span className="text-blue-600">Optional</span> | <span className="text-gray-500">Not Available</span> | Custom voice for the video narration |
+| `background_color` | <span className="text-gray-500">Not Available</span> | <span className="text-blue-600">Optional</span> | <span className="text-gray-500">Not Available</span> | Custom background color for the video |
+| `link` | <span className="text-gray-500">Not Available</span> | <span className="text-gray-500">Not Available</span> | <span className="text-green-600 font-semibold">Required</span> | URL of the original video to be modified |
+| `timestamp` | <span className="text-gray-500">Not Available</span> | <span className="text-gray-500">Not Available</span> | <span className="text-green-600 font-semibold">Required</span> | Timestamp where the modification should be applied (e.g., "6:18") |
+
+### VTT Files
+
+Alongside the video link, the API also returns a VTT (WebVTT) file containing subtitles and captions for the generated video.
+
+**What is a VTT File?**
+
+A VTT file is a standard format for displaying timed subtitles and captions that synchronize with video playback.
+
+### API Response
+
+When your video generation is complete, you'll receive both the video link and the VTT file URL in the response.
+
+**Example Response:**
 ```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
+{
+  "video_link": "https://knowlify-videos1.s3.us-west-2.amazonaws.com/video.mp4",
+  "vtt_file": "https://knowlify-videos1.s3.us-west-2.amazonaws.com/subtitles.vtt",
+  "status": "completed"
+}
 ```
+
+## Getting Started
+
+1. **Get your API key** from the Knowlify team
+2. **Choose your endpoint** based on your speed vs. quality needs
+3. **Make your first request** using the examples in each API section
+

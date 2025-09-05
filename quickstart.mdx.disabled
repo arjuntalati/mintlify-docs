@@ -1,0 +1,112 @@
+---
+title: "Quickstart"
+description: "Get started with Knowlify video generation APIs in minutes"
+---
+
+## Get your first video in three steps
+
+Start generating videos with Knowlify's APIs quickly and efficiently.
+
+### Step 1: Get your API key
+
+<AccordionGroup>
+  <Accordion icon="key" title="Sign up for Knowlify">
+    1. Contact the Knowlify team for access
+    2. Create your account or sign in
+    3. Navigate to the API Keys section
+    4. Generate your first API key
+    
+    <Warning>Keep your API key secure and never share it publicly!</Warning>
+  </Accordion>
+  <Accordion icon="test-tube" title="Test your connection">
+    Verify your API key works with a simple request:
+    
+    ```bash
+    curl -X GET "https://api.knowlify.com/v1/status" \
+      -H "Authorization: Bearer YOUR_API_KEY"
+    ```
+    
+    <Tip>You should receive a 200 OK response confirming your connection.</Tip>
+  </Accordion>
+</AccordionGroup>
+
+### Step 2: Generate your first video
+
+<AccordionGroup>
+  <Accordion icon="zap" title="Try Live-gen (fastest)">
+    Start with our fastest API for immediate results using WebSocket:
+    
+    ```javascript
+    const websocket = new WebSocket("wss://50fa8sjxo9.execute-api.us-west-2.amazonaws.com/production");
+    
+    websocket.onopen = function() {
+        const payload = {
+            action: "finetuned_live_gen",
+            task: "Welcome to Knowlify! This is my first generated video.",
+            api_key: "YOUR_API_KEY"
+        };
+        websocket.send(JSON.stringify(payload));
+    };
+    ```
+    
+    Your video will be ready in 30-90 seconds!
+  </Accordion>
+  <Accordion icon="film" title="Or try Pre-rendered (highest quality)">
+    For production-quality videos with animations:
+    
+    ```javascript
+    const websocket = new WebSocket("wss://50fa8sjxo9.execute-api.us-west-2.amazonaws.com/production");
+    
+    websocket.onopen = function() {
+        const payload = {
+            action: "Pre-Rendered",
+            task: "This is a high-quality video with beautiful animations.",
+            api_key: "YOUR_API_KEY"
+        };
+        websocket.send(JSON.stringify(payload));
+    };
+    ```
+    
+    <Note>Pre-rendered videos take 5-8 minutes but offer superior quality.</Note>
+  </Accordion>
+</AccordionGroup>
+
+### Step 3: Monitor and download
+
+<Accordion icon="download" title="Get your video">
+  1. Use the job ID from the response to check status:
+     ```bash
+     curl -X GET "https://api.knowlify.com/v1/jobs/{job_id}" \
+       -H "Authorization: Bearer YOUR_API_KEY"
+     ```
+  2. When status is `completed`, download your video from the `video_url`
+  3. Share, embed, or use your generated video!
+</Accordion>
+
+## Next steps
+
+Now that you've generated your first video, explore more features:
+
+<CardGroup cols={2}>
+
+<Card title="Pre-rendered API" icon="film" href="/api-reference/pre-rendered">
+  High-quality videos with animations and effects
+</Card>
+
+<Card title="Live-gen API" icon="zap" href="/api-reference/live-gen">
+  Fast generation for real-time applications
+</Card>
+
+<Card title="Modify API" icon="edit" href="/api-reference/modify">
+  Edit existing videos without regenerating
+</Card>
+
+<Card title="Python SDK" icon="python" href="/sdk/installation">
+  Install our Python SDK (coming soon)
+</Card>
+
+</CardGroup>
+
+<Note>
+  **Need help?** Contact us at [info@knowlify.com](mailto:info@knowlify.com).
+</Note>

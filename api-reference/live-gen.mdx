@@ -1,0 +1,174 @@
+---
+title: "Grant API"
+description: "Fast video generation for real-time applications"
+icon: "bolt"
+---
+
+## Overview
+
+The Grant API provides rapid video generation optimized for speed and real-time applications. This endpoint prioritizes quick turnaround times while maintaining good quality, making it perfect for answering quick questions and handling multiple sequential queries. Ideal for social media content, quick demos, and interactive applications.
+
+<Info>
+  Grant videos generate in 20-30 seconds, ideal for applications requiring immediate video output.
+</Info>
+
+## WebSocket Endpoint
+
+```
+wss://50fa8sjxo9.execute-api.us-west-2.amazonaws.com/production
+```
+
+## Authentication
+
+Include your API key in the WebSocket payload:
+
+```json
+{
+  "api_key": "YOUR_API_KEY"
+}
+```
+
+## Request Parameters
+
+<ParamField body="action" type="string" required>
+  Must be set to `"finetuned_live_gen"`
+</ParamField>
+
+<ParamField body="task" type="string" required>
+  The content or topic for your video (e.g., "explain integrals")
+</ParamField>
+
+<ParamField body="api_key" type="string" required>
+  Your Knowlify API key for authentication
+</ParamField>
+
+## Code Examples
+
+<CodeGroup>
+```python Python
+import asyncio
+import websockets
+import json
+
+task = r'''
+explain integrals
+'''
+
+async def send_request(task):
+    print("Sending request...")
+    uri = "wss://50fa8sjxo9.execute-api.us-west-2.amazonaws.com/production"
+
+    async with websockets.connect(uri) as websocket:
+        payload = {
+            "action": "finetuned_live_gen",
+            "task": task,
+            "api_key": "YOUR_API_KEY"
+        }
+        await websocket.send(json.dumps(payload))
+
+        while True:
+            try:
+                response = await websocket.recv()
+                print("Received response:", response)
+            except websockets.exceptions.ConnectionClosed:
+                print("Connection closed by the server.")
+                break
+
+if __name__ == "__main__":
+    asyncio.run(send_request(task))
+```
+
+```javascript JavaScript
+const task = `
+explain integrals
+`;
+
+async function sendRequest(task) {
+    console.log("Sending request...");
+    const uri = "wss://50fa8sjxo9.execute-api.us-west-2.amazonaws.com/production";
+
+    const websocket = new WebSocket(uri);
+    
+    websocket.onopen = function() {
+        const payload = {
+            action: "finetuned_live_gen",
+            task: task,
+            api_key: "YOUR_API_KEY"
+        };
+        websocket.send(JSON.stringify(payload));
+    };
+
+    websocket.onmessage = function(event) {
+        console.log("Received response:", event.data);
+    };
+
+    websocket.onclose = function() {
+        console.log("Connection closed by the server.");
+    };
+
+    websocket.onerror = function(error) {
+        console.error("WebSocket error:", error);
+    };
+}
+
+sendRequest(task);
+```
+</CodeGroup>
+
+## WebSocket Responses
+
+The WebSocket connection will send real-time updates throughout the video generation process:
+
+### Progress Updates
+```json
+{
+  "type": "progress",
+  "message": "Generating video...",
+  "progress": 45
+}
+```
+
+### Completion Response
+```json
+{
+  "video_link": "https://knowlify-videos1.s3.us-west-2.amazonaws.com/video.mp4",
+  "vtt_file": "https://knowlify-videos1.s3.us-west-2.amazonaws.com/subtitles.vtt",
+  "status": "completed"
+}
+```
+
+### Error Response
+```json
+{
+  "type": "error", 
+  "message": "Invalid API key",
+  "error_code": "AUTH_FAILED"
+}
+```
+
+## Response Fields
+
+<ResponseField name="video_link" type="string">
+  Download URL for the generated video
+</ResponseField>
+
+<ResponseField name="vtt_file" type="string">
+  URL for the WebVTT subtitle file with synchronized captions
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Generation status: `completed`, `failed`
+</ResponseField>
+
+<ResponseField name="progress" type="number">
+  Generation progress as percentage (0-100) - only in progress messages
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable status message - only in progress and error messages
+</ResponseField>
+
+<ResponseField name="error_code" type="string">
+  Error code for debugging - only in error messages
+</ResponseField>
+

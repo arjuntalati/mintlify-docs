@@ -1,0 +1,62 @@
+---
+title: "Python SDK Installation"
+description: "Install and set up the Knowlify Python SDK"
+icon: "python"
+---
+
+## Coming Soon
+
+The Knowlify Python SDK is currently under development and will be available soon.
+
+<Note>
+  The Python SDK will provide a convenient way to interact with all Knowlify APIs directly from your Python applications.
+</Note>
+
+## Expected Installation
+
+Once released, you'll be able to install the SDK using pip:
+
+```bash
+pip install knowlify
+```
+
+## Expected Usage
+
+The SDK will support all three main API endpoints:
+
+```python
+import knowlify
+
+# Initialize client
+client = knowlify.Client(api_key="your-api-key")
+
+# Pre-rendered videos (high quality, slower)
+video = client.pre_rendered.generate(
+    script="Your video script here",
+    # Additional parameters...
+)
+
+# Live generation (fast)
+video = client.live_gen.generate(
+    script="Your video script here",
+    # Additional parameters...
+)
+
+# Modify existing videos
+modified_video = client.modify.update(
+    video_id="video-123",
+    changes={...}
+)
+```
+
+## Stay Updated
+
+For now, please use our REST API directly. Check back soon for the Python SDK release!
+
+<Card
+  title="Use REST API"
+  icon="terminal"
+  href="/api-reference/introduction"
+>
+  Start building with our REST API while the SDK is in development.
+</Card>

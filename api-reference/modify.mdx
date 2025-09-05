@@ -1,0 +1,172 @@
+---
+title: "Modify API"
+description: "Edit and customize existing videos through our modification API"
+icon: "pencil"
+---
+
+## Overview
+
+The Modify API allows you to edit and customize existing videos generated through Knowlify. Make changes to text, styling, timing, and other video elements without regenerating from scratch.
+
+<Info>
+  Modifications are processed faster than full generation since they build on existing video assets.
+</Info>
+
+## WebSocket Endpoint
+
+```
+wss://50fa8sjxo9.execute-api.us-west-2.amazonaws.com/production
+```
+
+## Authentication
+
+No API key required for the modify endpoint.
+
+## Request Parameters
+
+<ParamField body="action" type="string" required>
+  Must be set to `"modify"`
+</ParamField>
+
+<ParamField body="link" type="string" required>
+  URL of the original video to be modified
+</ParamField>
+
+<ParamField body="query" type="string" required>
+  Description of the modification to be made (e.g., "HTTP 200 Received should be yellow instead of blue")
+</ParamField>
+
+<ParamField body="timestamp" type="string" required>
+  Timestamp where the modification should be applied (e.g., "6:18")
+</ParamField>
+
+## Code Examples
+
+<CodeGroup>
+```python Python
+import asyncio
+import websockets
+import json
+
+task = r'''
+HTTP 200 Received should be yellow instead of blue
+'''
+
+link = "https://abundant-videos-modified.s3.us-west-2.amazonaws.com/720263ba-d501-47c8-a556-42cf588f5043_combined.mp4"
+
+async def send_request(task):
+    print("Sending request...")
+    uri = "wss://50fa8sjxo9.execute-api.us-west-2.amazonaws.com/production"
+
+    async with websockets.connect(uri) as websocket:
+        payload = {
+            "action": "modify",
+            "link": link,
+            "query": task,
+            "timestamp": "6:18"
+        }
+        await websocket.send(json.dumps(payload))
+        
+        while True:
+            try:
+                response = await websocket.recv()
+                print("Received response:", response)
+            except websockets.exceptions.ConnectionClosed:
+                print("Connection closed by the server.")
+                break
+
+if __name__ == "__main__":
+    print("WebSocket test:")
+    asyncio.run(send_request(task))
+```
+
+```javascript JavaScript
+const task = `
+HTTP 200 Received should be yellow instead of blue
+`;
+
+const link = "https://abundant-videos-modified.s3.us-west-2.amazonaws.com/720263ba-d501-47c8-a556-42cf588f5043_combined.mp4";
+
+async function sendRequest(task) {
+    console.log("Sending request...");
+    const uri = "wss://50fa8sjxo9.execute-api.us-west-2.amazonaws.com/production";
+
+    const websocket = new WebSocket(uri);
+    
+    websocket.onopen = function() {
+        const payload = {
+            action: "modify",
+            link: link,
+            query: task,
+            timestamp: "6:18"
+        };
+        websocket.send(JSON.stringify(payload));
+    };
+
+    websocket.onmessage = function(event) {
+        console.log("Received response:", event.data);
+    };
+
+    websocket.onclose = function() {
+        console.log("Connection closed by the server.");
+    };
+
+    websocket.onerror = function(error) {
+        console.error("WebSocket error:", error);
+    };
+}
+
+console.log("WebSocket test:");
+sendRequest(task);
+```
+</CodeGroup>
+
+## WebSocket Responses
+
+The WebSocket connection will send real-time updates throughout the modification process:
+
+### Progress Updates
+```json
+{
+  "type": "progress",
+  "message": "Modifying video at timestamp 6:18...",
+  "progress": 60
+}
+```
+
+### Completion Response
+```json
+{
+  "video_link": "https://abundant-videos-modified.s3.us-west-2.amazonaws.com/modified_video.mp4",
+  "vtt_file": "https://abundant-videos-modified.s3.us-west-2.amazonaws.com/subtitles.vtt",
+  "status": "completed"
+}
+```
+
+### Error Response
+```json
+{
+  "type": "error",
+  "message": "Could not access the provided video link",
+  "error_code": "INVALID_VIDEO_URL"
+}
+```
+
+## Response Fields
+
+<ResponseField name="video_link" type="string">
+  Download URL for the modified video
+</ResponseField>
+
+<ResponseField name="vtt_file" type="string">
+  URL for the WebVTT subtitle file with synchronized captions
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Modification status: `completed`, `failed`
+</ResponseField>
+
+<ResponseField name="progress" type="number">
+  Modification progress as percentage (0-100) - only in progress messages
+</ResponseField>
+
