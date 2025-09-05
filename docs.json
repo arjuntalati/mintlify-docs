@@ -44,7 +44,7 @@
         "tab": "Python SDK",
         "groups": [
           {
-            "group": "SDK",
+            "group": "Python Package",
             "pages": [
               "sdk/installation"
             ]

@@ -1,53 +1,190 @@
 ---
-title: "Python SDK Installation"
-description: "Install and set up the Knowlify Python SDK"
+title: "Python SDK"
+description: "Generate explanatory videos from your Python code"
 icon: "python"
 ---
 
 ## Coming Soon
 
-The Knowlify Python SDK is currently under development and will be available soon.
+The Knowlify Python package is currently under development and will be available soon.
 
 <Note>
-  The Python SDK will provide a convenient way to interact with all Knowlify APIs directly from your Python applications.
+  The Python package will automatically generate explanatory videos from your Python code by capturing it and sending it to Knowlify's AI service.
 </Note>
 
-## Expected Installation
+## Installation
 
-Once released, you'll be able to install the SDK using pip:
+Once released, you'll be able to install the package using pip:
 
 ```bash
-pip install knowlify
+pip install knowlify-ai
 ```
 
-## Expected Usage
+## Quick Start
 
-The SDK will support all three main API endpoints:
+The package will work by simply calling `knowlify.create()` in your Python code:
 
 ```python
 import knowlify
 
-# Initialize client
-client = knowlify.Client(api_key="your-api-key")
+def fibonacci_loop(n):
+    a, b = 0, 1
+    for _ in range(n):
+        print(a, end=" ")
+        a, b = b, a + b
 
-# Pre-rendered videos (high quality, slower)
-video = client.pre_rendered.generate(
-    script="Your video script here",
-    # Additional parameters...
-)
-
-# Live generation (fast)
-video = client.live_gen.generate(
-    script="Your video script here",
-    # Additional parameters...
-)
-
-# Modify existing videos
-modified_video = client.modify.update(
-    video_id="video-123",
-    changes={...}
-)
+# Generate a video explaining the code above
+link = knowlify.create()
 ```
+
+## API Reference
+
+### Main Functions
+
+#### create(mode="grant", wait=False, function=None)
+Creates a video from your Python code.
+
+**Parameters:**
+- `mode` (str, optional): Video generation mode. Either "grant" or "prism". Defaults to "grant"
+- `wait` (bool, optional): If True, blocks until video is ready and returns the URL. If False (default), runs in background
+- `function` (str, optional): Name of specific function to capture. Supports "function_name" or "Class.method_name"
+
+**Returns:**
+- `str`: Video URL if `wait=True`. If `wait=False`, returns empty string and saves video to `./knowlify_videos/` directory without hanging the terminal
+
+**Examples:**
+```python
+# Capture code above the call
+knowlify.create()
+
+# Generate detailed video and wait for result
+url = knowlify.create("prism", wait=True)
+
+# Capture specific function
+knowlify.create(function="my_function")
+
+# Capture class method
+knowlify.create(function="MyClass.my_method")
+```
+
+#### start()
+Marks the beginning of a code region to capture. Must be paired with `end()`.
+
+**Example:**
+```python
+knowlify.start()
+# Your code here
+def complex_algorithm():
+    # ... implementation ...
+    
+knowlify.end()  # Captures everything between start() and end()
+```
+
+#### end(mode="grant", wait=False)
+Closes the active capture region and generates a video.
+
+**Parameters:**
+- `mode` (str, optional): Video generation mode. Either "grant" or "prism". Defaults to "grant"
+- `wait` (bool, optional): If True, blocks until video is ready and returns the URL. If False (default), runs in background
+
+**Returns:**
+- `str`: Video URL if `wait=True`. If `wait=False`, returns empty string and saves video to `./knowlify_videos/` directory without hanging the terminal
+
+## Usage Patterns
+
+### 1. One-Shot Capture (Default)
+```python
+import knowlify
+
+# Your code
+def calculate_fibonacci(n):
+    if n <= 1:
+        return n
+    return calculate_fibonacci(n-1) + calculate_fibonacci(n-2)
+
+# Generate video explaining the code above
+knowlify.create()
+```
+
+### 2. Region-Based Capture
+```python
+import knowlify
+
+knowlify.start()
+# Complex algorithm implementation
+def quicksort(arr):
+    if len(arr) <= 1:
+        return arr
+    pivot = arr[len(arr) // 2]
+    left = [x for x in arr if x < pivot]
+    middle = [x for x in arr if x == pivot]
+    right = [x for x in arr if x > pivot]
+    return quicksort(left) + middle + quicksort(right)
+
+knowlify.end("prism", wait=True)
+```
+
+### 3. Function-Specific Capture
+```python
+import knowlify
+
+class DataProcessor:
+    def __init__(self, data):
+        self.data = data
+        
+    def process(self):
+        # Complex processing logic
+        return self.data.upper()
+
+# Capture only the process method
+knowlify.create(function="DataProcessor.process")
+```
+
+## Video Modes
+
+### Grant Mode ("grant")
+- Quick generation using finetuned live generation
+- Suitable for simple code explanations
+- Faster processing time
+
+### Prism Mode ("prism")
+- Pre-rendered high-quality videos
+- More comprehensive explanations
+- Better for complex algorithms and concepts
+
+## Output
+
+Videos will be automatically saved to the `./knowlify_videos/` directory in your current working directory. The package will:
+1. Create the directory if it doesn't exist
+2. Download the generated video as an MP4 file
+3. Handle filename conflicts by adding timestamps
+4. Print the save location to console
+
+## Error Handling
+
+The package will raise `KnowlifyError` for common issues:
+
+```python
+from knowlify import KnowlifyError
+
+try:
+    knowlify.create()
+except KnowlifyError as e:
+    print(f"Error: {e}")
+```
+
+Common errors:
+- Source file not found
+- Function not found when using function parameter
+- `start()` called without matching `end()`
+- `end()` called without matching `start()`
+- Invalid mode parameter
+
+## Requirements
+
+- Python 3.8+
+- Internet connection (for video generation)
+- websockets package (automatically installed)
 
 ## Stay Updated
 
